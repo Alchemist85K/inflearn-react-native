@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "rn-chat",
+    "name": "Inflearn Chat",
     "slug": "rn-chat",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -13,13 +13,19 @@
     "updates": {
       "fallbackToCacheTimeout": 0
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": false,
+      "bundleIdentifier": "com.inflearn.beomjun",
+      "buildNumber": "1.0.0",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "The app accesses th photo library to upload your porofile when you are signing up or updating porifle."
+      }
     },
     "android": {
+      "package": "com.inflearn.beomjun",
+      "versionCode": 1,
+      "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"
