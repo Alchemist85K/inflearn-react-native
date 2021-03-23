@@ -19,7 +19,7 @@
       "bundleIdentifier": "com.inflearn.beomjun",
       "buildNumber": "1.0.0",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "The app accesses th photo library to upload your porofile when you are signing up or updating porifle."
+        "NSPhotoLibraryUsageDescription": "The app accesses to photo library to upload your profile when you are signing up or updating profile."
       }
     },
     "android": {
