@@ -43,8 +43,6 @@ const ItemIcon = styled(MaterialIcons).attrs(({ theme }) => ({
 }))``;
 const Item = React.memo(
   ({ item: { id, title, description, createdAt }, onPress }) => {
-    console.log(id);
-
     return (
       <ItemContainer onPress={() => onPress({ id, title })}>
         <ItemTextContainer>
