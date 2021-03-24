@@ -17,7 +17,7 @@ git clone https://github.com/Alchemist85K/inflearn-react-native.git
 ```
 
 2. 디렉터리 이동  
-   실습을 진행하는 장에 맞는 디렉터리로 이동하세요.
+   실습을 진행하는 프로젝트에 맞는 디렉터리로 이동하세요.
 
 ```bash
 cd <directory_name>
@@ -32,4 +32,4 @@ npm start
 
 ## 질문 및 제보
 
-책의 내용에 대한 질문과 오탈자 및 버그 제보는 **[질문 & 답변](https://www.inflearn.com/course/temp_326493/questions)** 을 이용해 주시기 바랍니다.
+강의의 내용에 대한 질문과 버그 제보는 **[질문 & 답변](https://www.inflearn.com/course/temp_326493/questions)** 을 이용해 주시기 바랍니다.
