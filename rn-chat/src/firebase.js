@@ -1,13 +1,21 @@
-import * as firebase from 'firebase';
+import { initializeApp } from 'firebase/app';
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  updateProfile,
+} from 'firebase/auth';
+import { getFirestore, collection, doc, setDoc } from 'firebase/firestore';
+import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 import config from '../firebase.json';
-import 'firebase/firestore';
 
-const app = firebase.initializeApp(config);
+export const app = initializeApp(config);
 
-const Auth = app.auth();
+const auth = getAuth(app);
 
 export const signin = async ({ email, password }) => {
-  const { user } = await Auth.signInWithEmailAndPassword(email, password);
+  const { user } = await signInWithEmailAndPassword(auth, email, password);
   return user;
 };
 
@@ -16,54 +24,47 @@ const uploadImage = async uri => {
     return uri;
   }
 
-  const blob = await new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      resolve(xhr.response);
-    };
-    xhr.onerror = function () {
-      reject(new TypeError('Network request failed'));
-    };
-    xhr.responseType = 'blob';
-    xhr.open('GET', uri, true);
-    xhr.send(null);
+  const response = await fetch(uri);
+  const blob = await response.blob();
+
+  const { uid } = auth.currentUser;
+  const storage = getStorage(app);
+  const storageRef = ref(storage, `/profile/${uid}/photo.png`);
+  await uploadBytes(storageRef, blob, {
+    contentType: 'image/png',
   });
 
-  const user = Auth.currentUser;
-  const ref = app.storage().ref(`/profile/${user.uid}/photo.png`);
-  const snapshot = await ref.put(blob, { contentType: 'image/png' });
-  blob.close();
-
-  return await snapshot.ref.getDownloadURL();
+  return await getDownloadURL(storageRef);
 };
 
 export const signup = async ({ name, email, password, photo }) => {
-  const { user } = await Auth.createUserWithEmailAndPassword(email, password);
+  const { user } = await createUserWithEmailAndPassword(auth, email, password);
   const photoURL = await uploadImage(photo);
-  await user.updateProfile({ displayName: name, photoURL });
+  await updateProfile(auth.currentUser, { displayName: name, photoURL });
   return user;
 };
 
 export const getCurrentUser = () => {
-  const { uid, displayName, email, photoURL } = Auth.currentUser;
+  const { uid, displayName, email, photoURL } = auth.currentUser;
   return { uid, name: displayName, email, photo: photoURL };
 };
 
 export const updateUserInfo = async photo => {
   const photoURL = await uploadImage(photo);
-  Auth.currentUser.updateProfile({ photoURL });
+  await updateProfile(auth.currentUser, { photoURL });
   return photoURL;
 };
 
 export const signout = async () => {
-  await Auth.signOut();
+  await signOut(auth);
   return {};
 };
 
-export const DB = firebase.firestore();
+const db = getFirestore(app);
 
 export const createChannel = async ({ title, desc }) => {
-  const newChannelRef = DB.collection('channels').doc();
+  const channelCollection = collection(db, 'channels');
+  const newChannelRef = doc(channelCollection);
   const id = newChannelRef.id;
   const newChannel = {
     id,
@@ -71,17 +72,11 @@ export const createChannel = async ({ title, desc }) => {
     description: desc,
     createdAt: Date.now(),
   };
-  await newChannelRef.set(newChannel);
+  await setDoc(newChannelRef, newChannel);
   return id;
 };
 
 export const createMessage = async ({ channelId, message }) => {
-  return await DB.collection('channels')
-    .doc(channelId)
-    .collection('messages')
-    .doc(message._id)
-    .set({
-      ...message,
-      createdAt: Date.now(),
-    });
+  const docRef = doc(db, `channels/${channelId}/messages`, message._id);
+  await setDoc(docRef, { ...message, createdAt: Date.now() });
 };

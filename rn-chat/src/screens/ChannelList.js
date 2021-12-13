@@ -2,8 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { FlatList } from 'react-native';
 import styled from 'styled-components/native';
 import { MaterialIcons } from '@expo/vector-icons';
-import { DB } from '../firebase';
 import moment from 'moment';
+import { app } from '../firebase';
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+} from 'firebase/firestore';
 
 const getDateOrTime = ts => {
   const now = moment().startOf('day');
@@ -63,17 +70,20 @@ const Container = styled.View`
 
 const ChannelList = ({ navigation }) => {
   const [channels, setChannels] = useState([]);
+  const db = getFirestore(app);
 
   useEffect(() => {
-    const unsubscribe = DB.collection('channels')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        const list = [];
-        snapshot.forEach(doc => {
-          list.push(doc.data());
-        });
-        setChannels(list);
+    const collectionQuery = query(
+      collection(db, 'channels'),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(collectionQuery, snapshot => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push(doc.data());
       });
+      setChannels(list);
+    });
     return () => unsubscribe();
   }, []);
 

@@ -15,7 +15,7 @@ const Container = styled.View`
   padding: 0 20px;
 `;
 
-const Profile = ({ navigation, route }) => {
+const Profile = () => {
   const { spinner } = useContext(ProgressContext);
   const { setUser } = useContext(UserContext);
   const theme = useContext(ThemeContext);

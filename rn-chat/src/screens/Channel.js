@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import styled from 'styled-components/native';
-import { createMessage, getCurrentUser, DB } from '../firebase';
+import { createMessage, getCurrentUser, app } from '../firebase';
 import { GiftedChat, Send } from 'react-native-gifted-chat';
 import { Alert } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
+import {
+  getFirestore,
+  collection,
+  onSnapshot,
+  query,
+  doc,
+  orderBy,
+} from 'firebase/firestore';
 
 const Container = styled.View`
   flex: 1;
@@ -43,18 +51,20 @@ const Channel = ({ navigation, route }) => {
     });
   }, []);
 
+  const db = getFirestore(app);
   useEffect(() => {
-    const unsubscribe = DB.collection('channels')
-      .doc(route.params.id)
-      .collection('messages')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        const list = [];
-        snapshot.forEach(doc => {
-          list.push(doc.data());
-        });
-        setMessages(list);
+    const docRef = doc(db, 'channels', route.params.id);
+    const collectionQuery = query(
+      collection(db, `${docRef.path}/messages`),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(collectionQuery, snapshot => {
+      const list = [];
+      snapshot.forEach(doc => {
+        list.push(doc.data());
       });
+      setMessages(list);
+    });
     return () => unsubscribe();
   }, []);
 
